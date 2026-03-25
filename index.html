@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passport Photo Maker</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i data-lucide="camera" class="logo-icon"></i>
+                <h1>Photo Maker</h1>
+            </div>
+            <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode">
+                <i data-lucide="moon" id="theme-icon"></i>
+            </button>
+        </header>
+
+        <!-- Progress Steps -->
+        <nav class="step-indicator">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Upload</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Process</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Customize</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Download</span>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- Step 1: Upload -->
+            <section id="step-1" class="step-content active">
+                <div class="header-text">
+                    <h2>Let's get started</h2>
+                    <p>Upload a clear photo of your face.</p>
+                </div>
+                
+                <div class="upload-area" id="dropzone">
+                    <div class="upload-icon-wrapper">
+                        <i data-lucide="upload-cloud" class="upload-icon"></i>
+                    </div>
+                    <h3>Upload your photo</h3>
+                    <p class="upload-hint">Drag & drop or click to browse</p>
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <button class="btn btn-primary btn-large" onclick="document.getElementById('file-input').click()">
+                        Select Photo
+                    </button>
+                    <!-- Error message container -->
+                    <div id="upload-error" class="error-msg hidden">
+                        <i data-lucide="alert-circle"></i>
+                        <span>Please select a valid image file.</span>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <i data-lucide="lightbulb" class="tip-icon"></i>
+                    <div class="tip-content">
+                        <strong>Pro Tip:</strong>
+                        <p>Look straight at the camera with good lighting and neutral expression.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Processing -->
+            <section id="step-2" class="step-content">
+                <div class="processing-container">
+                    <div class="scan-animation">
+                        <div class="image-preview processing-preview" id="processing-image">
+                            <!-- Image will be injected here via JS -->
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+                    <div class="processing-status">
+                        <div class="spinner"></div>
+                        <h2 id="processing-text">Removing background...</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Customize -->
+            <section id="step-3" class="step-content">
+                <div class="header-text">
+                    <h2>Perfect your photo</h2>
+                    <p>Select size and background color</p>
+                </div>
+
+                <!-- Live Preview area with Before/After -->
+                <div class="preview-section">
+                    <div class="preview-container" id="preview-box">
+                        <img src="" alt="Final Photo" id="final-preview" class="preview-img">
+                        <img src="" alt="Original Photo" id="original-preview" class="preview-img before-img masked">
+                        
+                        <!-- Slider handle -->
+                        <div class="slider-handle" id="slider-handle">
+                            <div class="slider-line"></div>
+                            <div class="slider-button">
+                                <i data-lucide="chevrons-left-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-controls">
+                        <span class="label">Before / After</span>
+                    </div>
+                </div>
+
+                <div class="options-container">
+                    <!-- Crop Option -->
+                    <div class="option-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+                            <h3>Adjust Photo</h3>
+                        </div>
+                        <button class="btn btn-outline btn-large" id="btn-open-crop">
+                            <i data-lucide="crop"></i> Crop to Fit Selected Size
+                        </button>
+                    </div>
+
+                    <!-- Size Selection -->
+                    <div class="option-group">
+                        <h3>Choose photo size</h3>
+                        <div class="size-cards">
+                            <div class="size-card active" data-size="passport">
+                                <i data-lucide="user"></i>
+                                <span>Passport</span>
+                                <small>2x2 inch</small>
+                            </div>
+                            <div class="size-card" data-size="visa">
+                                <i data-lucide="globe"></i>
+                                <span>Visa</span>
+                                <small>35x45 mm</small>
+                            </div>
+                            <div class="size-card" data-size="id">
+                                <i data-lucide="credit-card"></i>
+                                <span>ID Card</span>
+                                <small>Wallet</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Background Options -->
+                    <div class="option-group">
+                        <h3>Background Color</h3>
+                        <div class="color-options">
+                            <button class="color-btn active" data-color="#ffffff" style="background-color: #ffffff;" aria-label="White"></button>
+                            <button class="color-btn" data-color="#3b82f6" style="background-color: #3b82f6;" aria-label="Blue"></button>
+                            <button class="color-btn" data-color="#ef4444" style="background-color: #ef4444;" aria-label="Red"></button>
+                            <div class="custom-color-wrapper">
+                                <input type="color" id="custom-color" class="custom-color-input" value="#e2e8f0">
+                                <button class="color-btn custom-color-trigger" aria-label="Custom color">
+                                    <i data-lucide="palette"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions center-actions">
+                    <button class="btn btn-primary btn-large" id="btn-next">Looks Good &rarr;</button>
+                </div>
+            </section>
+
+            <!-- Step 4: Download -->
+            <section id="step-4" class="step-content">
+                <div class="header-text">
+                    <h2>Ready to download</h2>
+                    <p>Your photo is optimized and ready</p>
+                </div>
+
+                <div class="final-result">
+                    <div class="final-preview-wrapper" id="download-preview-wrapper">
+                        <img src="" alt="Ready Photo" id="download-preview">
+                    </div>
+                </div>
+
+                <div class="download-options">
+                    <button class="btn btn-primary btn-massive" id="btn-download-single">
+                        <i data-lucide="download"></i>
+                        <div>
+                            <strong>Download Single</strong>
+                            <small>High resolution digital copy</small>
+                        </div>
+                    </button>
+                    <button class="btn btn-secondary btn-massive" id="btn-download-sheet">
+                        <i data-lucide="grid"></i>
+                        <div>
+                            <strong>Download A4 Sheet</strong>
+                            <small>Ready for home printing</small>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="actions center-actions mt-lg">
+                    <button class="btn btn-outline" id="btn-start-over">
+                        <i data-lucide="rotate-ccw"></i> Create Another
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Crop Modal (Hidden by default) -->
+    <div id="crop-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crop Photo</h3>
+                <button id="close-modal" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" style="background-color: var(--surface-color);">
+                <div class="img-container" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                    <img id="image-to-crop" src="" style="max-width: 100%; max-height: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-cancel-crop" class="btn btn-outline">Cancel</button>
+                <button id="btn-save-crop" class="btn btn-primary">Apply Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
