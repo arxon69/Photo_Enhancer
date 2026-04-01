@@ -3,200 +3,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if user.is_authenticated %}Photo Editor{% else %}Photo Maker - Enhance Your Photos{% endif %}</title>
+    <title>{% if user.is_authenticated %}Photo Editor | PhotoEnhancer{% else %}PhotoEnhancer - Transform Your Photos with AI{% endif %}</title>
     {% load static %}
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+        .step:not(.active) .step-circle {
+            background: var(--border-color);
+            color: var(--text-secondary);
+        }
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+        .step-line {
+            width: 60px;
+            height: 3px;
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .hidden { display: none !important; }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen transition-colors duration-300">
+    {% if not user.is_authenticated %}
+    <!-- Landing Page for Non-Authenticated Users -->
+    <div class="landing-page">
+        <!-- Navbar -->
+        <nav class="fixed w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl text-slate-800 dark:text-white">PhotoEnhancer</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <i data-lucide="moon" class="w-5 h-5 text-slate-600 dark:text-slate-400"></i>
+                        </button>
+                        <a href="/accounts/login/" class="hidden sm:block px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium transition-colors">Sign In</a>
+                        <a href="/accounts/login/?signup=true" class="px-4 py-2 gradient-bg text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
+                            Get Started
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-primary-900/30 rounded-full text-primary-600 dark:text-primary-400 text-sm font-medium">
+                            <span class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
+                            AI-Powered Photo Enhancement
+                        </div>
+                        <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-slate-900 dark:text-white">
+                            Transform Your <span class="gradient-text">Photos</span> with AI
+                        </h1>
+                        <p class="text-xl text-slate-600 dark:text-slate-400 max-w-lg">
+                            Professional-grade photo enhancement powered by artificial intelligence. Enhance, restore, and beautify your images in seconds.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="/accounts/login/?signup=true" class="inline-flex items-center justify-center gap-2 px-8 py-4 gradient-bg text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary-500/25">
+                                <i data-lucide="wand-2" class="w-5 h-5"></i>
+                                Start Enhancing Free
+                            </a>
+                            <button onclick="document.getElementById('demo-section').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl font-semibold text-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                <i data-lucide="play-circle" class="w-5 h-5"></i>
+                                See Demo
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-4 pt-4">
+                            <div class="flex -space-x-3">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=3" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=4" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 bg-slate-100">
+                            </div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">
+                                <span class="font-semibold text-slate-900 dark:text-white">10,000+</span> users enhancing their photos
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-gradient-to-r from-primary-400 to-purple-400 rounded-3xl blur-2xl opacity-20"></div>
+                        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 animate-float">
+                            <div class="aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-700 relative">
+                                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop" alt="Example" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="glass-card px-6 py-3 rounded-2xl">
+                                        <span class="text-white font-semibold flex items-center gap-2">
+                                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                            AI Enhanced
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20 bg-white dark:bg-slate-800/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">Powerful AI Features</h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Everything you need to make your photos look professional</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="feature-card p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="sparkles" class="w-6 h-6 text-primary-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-2">AI Enhancement</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Automatically improve colors, lighting, and clarity with one click</p>
+                    </div>
+                    <div class="feature-card p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="scan" class="w-6 h-6 text-purple-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-2">Smart Crop</h3>
+                        <p class="text-slate-600 dark:text-slate-400">AI-powered cropping to focus on the most important parts</p>
+                    </div>
+                    <div class="feature-card p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                        <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="wand-2" class="w-6 h-6 text-rose-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-2">Background Remove</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Instantly remove or replace backgrounds automatically</p>
+                    </div>
+                    <div class="feature-card p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                        <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="download" class="w-6 h-6 text-emerald-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-2">4K Export</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Download your enhanced images in ultra-high resolution</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section id="demo-section" class="py-20 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">See the Magic</h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400">Upload a photo and see AI enhancement in action</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 border border-slate-200 dark:border-slate-700">
+                    <div class="upload-area" id="upload-area" onclick="alert('Please sign in to upload and edit photos!')">
+                        <div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="upload-cloud" class="w-10 h-10 text-primary-600"></i>
+                        </div>
+                        <h3 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-2">Try It Now</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-6">Click to see the upload experience</p>
+                        <button class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                            Choose Photo
+                        </button>
+                        <div class="mt-4 flex items-center justify-center gap-4 text-sm text-slate-500">
+                            <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Free</span>
+                            <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> No watermark</span>
+                            <span class="flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> HD Export</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="py-20 bg-slate-50 dark:bg-slate-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">Simple Pricing</h2>
+                    <p class="text-lg text-slate-600 dark:text-slate-400">Choose the plan that works for you</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <!-- Free Plan -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
+                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-2">Starter</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-4">For occasional use</p>
+                        <div class="mb-6">
+                            <span class="font-display text-4xl font-bold text-slate-900 dark:text-white">Free</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> 5 photos/month</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Basic enhancement</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> 1080p export</li>
+                        </ul>
+                        <a href="/accounts/login/?signup=true" class="block w-full py-3 text-center border-2 border-slate-200 dark:border-slate-600 rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Get Started</a>
+                    </div>
+                    <!-- Pro Plan -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border-2 border-primary-500 relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-500 text-white text-sm font-semibold rounded-full">Popular</div>
+                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-2">Pro</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-4">For creators</p>
+                        <div class="mb-6">
+                            <span class="font-display text-4xl font-bold text-slate-900 dark:text-white">$9</span><span class="text-slate-600 dark:text-slate-400">/month</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Unlimited photos</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Advanced AI models</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> 4K export</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Priority processing</li>
+                        </ul>
+                        <a href="/accounts/login/?signup=true" class="block w-full py-3 text-center gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">Get Started</a>
+                    </div>
+                    <!-- Enterprise -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
+                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-2">Enterprise</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-4">For teams</p>
+                        <div class="mb-6">
+                            <span class="font-display text-4xl font-bold text-slate-900 dark:text-white">$49</span><span class="text-slate-600 dark:text-slate-400">/month</span>
+                        </div>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Everything in Pro</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Team collaboration</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> API access</li>
+                            <li class="flex items-center gap-2 text-slate-600 dark:text-slate-400"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i> Custom training</li>
+                        </ul>
+                        <a href="/accounts/login/?signup=true" class="block w-full py-3 text-center border-2 border-slate-200 dark:border-slate-600 rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-slate-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                            <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <span class="font-display font-bold text-xl">PhotoEnhancer</span>
+                    </div>
+                    <div class="flex items-center gap-8 text-slate-400">
+                        <a href="#" class="hover:text-white transition-colors">Features</a>
+                        <a href="#" class="hover:text-white transition-colors">Pricing</a>
+                        <a href="#" class="hover:text-white transition-colors">API</a>
+                        <a href="#" class="hover:text-white transition-colors">Contact</a>
+                    </div>
+                    <p class="text-slate-500">© 2024 PhotoEnhancer. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{% static 'auth.js' %}"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check saved theme
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+        
+        themeToggle?.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+            lucide.createIcons();
+        });
+    </script>
+
+    {% else %}
+    <!-- Photo Editor for Authenticated Users -->
     <div class="app-layout">
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <i data-lucide="camera" class="logo-icon"></i>
-                <span class="logo-text">Photo Maker</span>
-            </div>
-            <nav class="sidebar-nav">
-                <div id="auth-buttons-sidebar">
-                    <!-- Buttons will be injected or shown based on auth status -->
-                    {% if not user.is_authenticated %}
-                        <button class="sidebar-btn primary" onclick="window.location.href='/accounts/login/'">
-                            <i data-lucide="log-in"></i>
-                            <span>Login</span>
-                        </button>
-                        <button class="sidebar-btn secondary" onclick="window.location.href='/accounts/login/?signup=true'">
-                            <i data-lucide="user-plus"></i>
-                            <span>Sign Up</span>
-                        </button>
-                    {% else %}
-                        <div class="user-profile-sidebar">
-                            <i data-lucide="user" class="user-icon"></i>
-                            <span id="user-welcome-sidebar">Hi, {{ user.first_name|default:user.username }}!</span>
-                        </div>
-                        <button class="sidebar-btn logout" onclick="logoutUser()">
-                            <i data-lucide="log-out"></i>
-                            <span>Logout</span>
-                        </button>
-                    {% endif %}
+        <aside class="fixed left-0 top-0 w-64 h-screen bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col z-40">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                        <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl text-slate-800 dark:text-white">PhotoEnhancer</span>
                 </div>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium">
+                    <i data-lucide="image" class="w-5 h-5"></i>
+                    Editor
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="library" class="w-5 h-5"></i>
+                    My Photos
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    Subscription
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    Settings
+                </a>
             </nav>
+
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                        {{ user.first_name|first|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-slate-900 dark:text-white truncate">{{ user.first_name|default:user.username }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user.email }}</p>
+                    </div>
+                    <button onclick="logoutUser()" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Logout">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
         </aside>
 
-        <div class="app-container">
-            <!-- Header / Navbar -->
-            <header class="header">
-                <div class="logo-mobile">
-                    <i data-lucide="camera" class="logo-icon"></i>
-                    <h1>Photo Maker</h1>
-                </div>
-                <div class="header-actions">
-                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode">
-                        <i data-lucide="moon" id="theme-icon"></i>
+        <!-- Main Content -->
+        <main class="ml-64 min-h-screen">
+            <!-- Top Header -->
+            <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-8">
+                <h1 class="text-xl font-semibold text-slate-800 dark:text-white">Photo Editor</h1>
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <i data-lucide="moon" class="w-5 h-5 text-slate-600 dark:text-slate-400"></i>
                     </button>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <main class="content-area" id="main-content">
-                
-                <!-- Photo Editor (Now visible to all, but actions gated) -->
-                <section id="editor-section">
-                    <!-- Progress Steps -->
-                    <nav class="step-indicator">
+            <!-- Editor Content -->
+            <div class="p-8">
+                <!-- Progress Steps -->
+                <div class="max-w-3xl mx-auto mb-8">
+                    <div class="flex items-center justify-center">
                         <div class="step active" data-step="1">
                             <div class="step-circle">1</div>
-                            <span class="step-label">Upload</span>
+                            <span class="text-sm text-slate-600 dark:text-slate-400 mt-2">Upload</span>
                         </div>
                         <div class="step-line"></div>
                         <div class="step" data-step="2">
                             <div class="step-circle">2</div>
-                            <span class="step-label">Process</span>
+                            <span class="text-sm text-slate-600 dark:text-slate-400 mt-2">Process</span>
                         </div>
                         <div class="step-line"></div>
                         <div class="step" data-step="3">
                             <div class="step-circle">3</div>
-                            <span class="step-label">Customize</span>
+                            <span class="text-sm text-slate-600 dark:text-slate-400 mt-2">Customize</span>
                         </div>
                         <div class="step-line"></div>
                         <div class="step" data-step="4">
                             <div class="step-circle">4</div>
-                            <span class="step-label">Download</span>
-                        </div>
-                    </nav>
-
-                    <!-- Upload Section -->
-                    <div id="upload-section" class="upload-section">
-                        <div class="upload-area" id="upload-area">
-                            <div class="upload-icon">
-                                <i data-lucide="upload-cloud" style="width: 64px; height: 64px; color: var(--text-muted);"></i>
-                            </div>
-                            <h2>Upload Your Photo</h2>
-                            <p>Drag and drop your photo here or click to browse</p>
-                            <input type="file" id="photo-input" accept="image/*" hidden>
-                            <button class="btn btn-primary" id="upload-btn">Choose Photo</button>
-                            <p class="upload-hint">Supported formats: JPG, PNG, WebP (Max 10MB)</p>
-                            
-                            {% if not user.is_authenticated %}
-                            <div class="auth-required-overlay">
-                                <p>Please <a href="/accounts/login/">Login</a> to upload and edit photos</p>
-                            </div>
-                            {% endif %}
+                            <span class="text-sm text-slate-600 dark:text-slate-400 mt-2">Download</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Processing Section (Hidden Initially) -->
-                    <div id="processing-section" class="processing-section hidden">
-                        <div class="processing-container">
-                            <div class="processing-icon">
-                                <i data-lucide="loader" style="width: 48px; height: 48px; color: var(--primary);"></i>
-                            </div>
-                            <h2>Processing Your Photo</h2>
-                            <p>Please wait while we enhance your photo...</p>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progress-fill"></div>
-                            </div>
+                <!-- Upload Section -->
+                <div id="upload-section" class="max-w-2xl mx-auto">
+                    <div class="upload-area bg-white dark:bg-slate-800" id="upload-area">
+                        <div class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="upload-cloud" class="w-10 h-10 text-primary-600"></i>
+                        </div>
+                        <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-2">Upload Your Photo</h2>
+                        <p class="text-slate-600 dark:text-slate-400 mb-6">Drag and drop your photo here or click to browse</p>
+                        <input type="file" id="photo-input" accept="image/*" hidden>
+                        <button class="px-8 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-opacity" id="upload-btn">
+                            Choose Photo
+                        </button>
+                        <p class="text-sm text-slate-500 mt-4">Supported: JPG, PNG, WebP (Max 10MB)</p>
+                    </div>
+                </div>
+
+                <!-- Processing Section -->
+                <div id="processing-section" class="hidden max-w-2xl mx-auto">
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <i data-lucide="loader-2" class="w-10 h-10 text-white animate-spin"></i>
+                        </div>
+                        <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-2">Processing Your Photo</h2>
+                        <p class="text-slate-600 dark:text-slate-400 mb-6">AI is working its magic...</p>
+                        <div class="progress-bar max-w-md mx-auto">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Result Section (Hidden Initially) -->
-                    <div id="result-section" class="result-section hidden">
-                        <div class="result-container">
-                            <h2>Your Enhanced Photo</h2>
-                            <div class="result-grid">
-                                <div class="original-preview">
-                                    <h3>Original</h3>
-                                    <img id="original-img" alt="Original photo">
-                                </div>
-                                <div class="enhanced-preview">
-                                    <h3>Enhanced</h3>
-                                    <img id="enhanced-img" alt="Enhanced photo">
-                                </div>
+                <!-- Result Section -->
+                <div id="result-section" class="hidden max-w-4xl mx-auto">
+                    <h2 class="font-display text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">Your Enhanced Photo</h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden">
+                            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Original</span>
                             </div>
-                            <div class="result-actions">
-                                <button class="btn btn-secondary" id="edit-btn">Edit</button>
-                                <button class="btn btn-primary" id="download-btn">Download</button>
+                            <img id="original-img" class="w-full h-64 object-contain bg-slate-50 dark:bg-slate-700" alt="Original">
+                        </div>
+                        <div class="bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden">
+                            <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                                <span class="font-medium text-slate-700 dark:text-slate-300">Enhanced</span>
                             </div>
+                            <img id="enhanced-img" class="w-full h-64 object-contain bg-slate-50 dark:bg-slate-700" alt="Enhanced">
                         </div>
                     </div>
-                </section>
-            </main>
-        </div>
+                    <div class="flex justify-center gap-4 mt-8">
+                        <button class="px-6 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-xl font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" id="edit-btn">
+                            Edit Again
+                        </button>
+                        <button class="px-6 py-3 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center gap-2" id="download-btn">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Scripts -->
     <script src="{% static 'auth.js' %}"></script>
+    <script src="{% static 'app.js' %}"></script>
     <script>
-        // Initialize page
-        async function initializePage() {
-            // Load theme script immediately
+        lucide.createIcons();
+        
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        
+        themeToggle?.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
             lucide.createIcons();
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            let theme = localStorage.getItem('theme') || 'light';
-            
-            function applyTheme() {
-                document.documentElement.setAttribute('data-theme', theme);
-                const iconName = theme === 'light' ? 'moon' : 'sun';
-                if (themeToggleBtn) {
-                    themeToggleBtn.innerHTML = '<i data-lucide="' + iconName + '"></i>';
-                }
-                lucide.createIcons();
-            }
+        });
 
-            function toggleTheme() {
-                theme = theme === 'light' ? 'dark' : 'light';
-                localStorage.setItem('theme', theme);
-                applyTheme();
-            }
-
-            applyTheme();
-            themeToggleBtn?.addEventListener('click', toggleTheme);
-
-            // Check authentication status to handle script loading
-            const isAuthenticated = await Auth.checkAuth();
-            
-            // Load editor scripts (we load it for everyone, but gated in app.js)
-            const script = document.createElement('script');
-            script.src = "{% static 'app.js' %}";
-            document.body.appendChild(script);
-        }
-
-        async function logoutUser() {
-            const result = await Auth.logout();
-            if (result.success) {
+        function logoutUser() {
+            fetch('/accounts/api/logout/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                },
+                credentials: 'same-origin'
+            }).then(() => {
                 window.location.href = '/';
-            }
+            });
         }
-
-        // Initialize page on load
-        initializePage();
     </script>
+    {% endif %}
 </body>
 </html>

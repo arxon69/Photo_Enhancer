@@ -1,0 +1,154 @@
+version: "3.9"
+
+# =============================================================================
+# PhotoEnhancer - Production Docker Compose
+# =============================================================================
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: photoenhancer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # Celery Worker (Background Tasks)
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    command: celery -A photo_enhancer worker -l INFO -c 4
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-changeme}@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - media_files:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # Celery Beat (Scheduled Tasks)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    command: celery -A photo_enhancer beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-changeme}@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - celery_worker
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # Django Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD:-changeme}@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS}
+      - SECURE_SSL_REDIRECT=True
+      - SECURE_HSTS_SECONDS=31536000
+      - SESSION_COOKIE_SECURE=True
+      - CSRF_COOKIE_SECURE=True
+    volumes:
+      - media_files:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_files:/var/www/static:ro
+      - media_files:/var/www/media:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - web
+    networks:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_files:
+  media_files:
+
+networks:
+  backend:
+    internal: true
+  frontend:

@@ -1,0 +1,93 @@
+version: "3.9"
+
+# =============================================================================
+# PhotoEnhancer - Development Docker Compose
+# =============================================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: photoenhancer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+    volumes:
+      - .:/app
+      - media_files:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: celery -A photo_enhancer worker -l INFO
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=dev-secret-key-change-in-production
+    volumes:
+      - .:/app
+      - media_files:/app/media
+    depends_on:
+      - db
+      - redis
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: celery -A photo_enhancer beat -l INFO
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/photoenhancer
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - SECRET_KEY=dev-secret-key-change-in-production
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
+  media_files:
