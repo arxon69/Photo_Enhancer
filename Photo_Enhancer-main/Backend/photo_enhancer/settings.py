@@ -134,11 +134,10 @@ if REDIS_URL:
     SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
     SESSION_CACHE_ALIAS = 'default'
 else:
-    # Fallback to database cache
+    # Fallback to local memory cache (no setup required, works immediately)
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'django_cache_table',
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'TIMEOUT': 300,
         }
     }

@@ -1,0 +1,181 @@
+INFO 2026-04-01 13:10:41,837 autoreload 22052 12592 Watching for file changes with StatReloader
+WARNING 2026-04-01 13:11:01,778 log 22052 20440 Forbidden (CSRF token from POST incorrect.): /admin/login/
+ERROR 2026-04-01 13:11:06,843 log 22052 20440 Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: django_cache_table
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\middleware\cache.py", line 161, in process_request
+    cache_key = get_cache_key(request, self.key_prefix, "GET", cache=self.cache)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\cache.py", line 392, in get_cache_key
+    headerlist = cache.get(cache_key)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 53, in get
+    return self.get_many([key], version).get(key, default)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 69, in get_many
+    cursor.execute(
+    ~~~~~~~~~~~~~~^
+        "SELECT %s, %s, %s FROM %s WHERE %s IN (%s)"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        list(key_map),
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: django_cache_table
+INFO 2026-04-01 13:12:26,842 autoreload 23928 27816 Watching for file changes with StatReloader
+INFO 2026-04-01 13:13:13,916 autoreload 26344 21200 Watching for file changes with StatReloader
+ERROR 2026-04-01 13:13:17,521 log 22052 12744 Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: django_cache_table
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\middleware\cache.py", line 161, in process_request
+    cache_key = get_cache_key(request, self.key_prefix, "GET", cache=self.cache)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\cache.py", line 392, in get_cache_key
+    headerlist = cache.get(cache_key)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 53, in get
+    return self.get_many([key], version).get(key, default)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 69, in get_many
+    cursor.execute(
+    ~~~~~~~~~~~~~~^
+        "SELECT %s, %s, %s FROM %s WHERE %s IN (%s)"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        list(key_map),
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: django_cache_table
+ERROR 2026-04-01 13:13:22,971 log 22052 24616 Internal Server Error: /
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: django_cache_table
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\middleware\cache.py", line 161, in process_request
+    cache_key = get_cache_key(request, self.key_prefix, "GET", cache=self.cache)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\utils\cache.py", line 392, in get_cache_key
+    headerlist = cache.get(cache_key)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 53, in get
+    return self.get_many([key], version).get(key, default)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\core\cache\backends\db.py", line 69, in get_many
+    cursor.execute(
+    ~~~~~~~~~~~~~~^
+        "SELECT %s, %s, %s FROM %s WHERE %s IN (%s)"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        list(key_map),
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Photo_Enhancer-main\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: django_cache_table
+INFO 2026-04-01 13:13:36,147 autoreload 13472 28056 Watching for file changes with StatReloader
+INFO 2026-04-01 13:14:02,740 autoreload 22052 12592 D:\Photo_Enhancer-main\Photo_Enhancer-main\Backend\photo_enhancer\settings.py changed, reloading.
+INFO 2026-04-01 13:14:04,024 autoreload 20232 26264 Watching for file changes with StatReloader
