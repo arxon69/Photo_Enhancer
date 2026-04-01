@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if user.is_authenticated %}Photo Editor{% else %}Photo Maker - Enhance Your Photos{% endif %}</title>
+    {% load static %}
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i data-lucide="camera" class="logo-icon"></i>
+                <span class="logo-text">Photo Maker</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div id="auth-buttons-sidebar">
+                    <!-- Buttons will be injected or shown based on auth status -->
+                    {% if not user.is_authenticated %}
+                        <button class="sidebar-btn primary" onclick="window.location.href='/accounts/login/'">
+                            <i data-lucide="log-in"></i>
+                            <span>Login</span>
+                        </button>
+                        <button class="sidebar-btn secondary" onclick="window.location.href='/accounts/login/?signup=true'">
+                            <i data-lucide="user-plus"></i>
+                            <span>Sign Up</span>
+                        </button>
+                    {% else %}
+                        <div class="user-profile-sidebar">
+                            <i data-lucide="user" class="user-icon"></i>
+                            <span id="user-welcome-sidebar">Hi, {{ user.first_name|default:user.username }}!</span>
+                        </div>
+                        <button class="sidebar-btn logout" onclick="logoutUser()">
+                            <i data-lucide="log-out"></i>
+                            <span>Logout</span>
+                        </button>
+                    {% endif %}
+                </div>
+            </nav>
+        </aside>
+
+        <div class="app-container">
+            <!-- Header / Navbar -->
+            <header class="header">
+                <div class="logo-mobile">
+                    <i data-lucide="camera" class="logo-icon"></i>
+                    <h1>Photo Maker</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode">
+                        <i data-lucide="moon" id="theme-icon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content-area" id="main-content">
+                
+                <!-- Photo Editor (Now visible to all, but actions gated) -->
+                <section id="editor-section">
+                    <!-- Progress Steps -->
+                    <nav class="step-indicator">
+                        <div class="step active" data-step="1">
+                            <div class="step-circle">1</div>
+                            <span class="step-label">Upload</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="2">
+                            <div class="step-circle">2</div>
+                            <span class="step-label">Process</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="3">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Customize</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step" data-step="4">
+                            <div class="step-circle">4</div>
+                            <span class="step-label">Download</span>
+                        </div>
+                    </nav>
+
+                    <!-- Upload Section -->
+                    <div id="upload-section" class="upload-section">
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon">
+                                <i data-lucide="upload-cloud" style="width: 64px; height: 64px; color: var(--text-muted);"></i>
+                            </div>
+                            <h2>Upload Your Photo</h2>
+                            <p>Drag and drop your photo here or click to browse</p>
+                            <input type="file" id="photo-input" accept="image/*" hidden>
+                            <button class="btn btn-primary" id="upload-btn">Choose Photo</button>
+                            <p class="upload-hint">Supported formats: JPG, PNG, WebP (Max 10MB)</p>
+                            
+                            {% if not user.is_authenticated %}
+                            <div class="auth-required-overlay">
+                                <p>Please <a href="/accounts/login/">Login</a> to upload and edit photos</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Processing Section (Hidden Initially) -->
+                    <div id="processing-section" class="processing-section hidden">
+                        <div class="processing-container">
+                            <div class="processing-icon">
+                                <i data-lucide="loader" style="width: 48px; height: 48px; color: var(--primary);"></i>
+                            </div>
+                            <h2>Processing Your Photo</h2>
+                            <p>Please wait while we enhance your photo...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Result Section (Hidden Initially) -->
+                    <div id="result-section" class="result-section hidden">
+                        <div class="result-container">
+                            <h2>Your Enhanced Photo</h2>
+                            <div class="result-grid">
+                                <div class="original-preview">
+                                    <h3>Original</h3>
+                                    <img id="original-img" alt="Original photo">
+                                </div>
+                                <div class="enhanced-preview">
+                                    <h3>Enhanced</h3>
+                                    <img id="enhanced-img" alt="Enhanced photo">
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <button class="btn btn-secondary" id="edit-btn">Edit</button>
+                                <button class="btn btn-primary" id="download-btn">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'auth.js' %}"></script>
+    <script>
+        // Initialize page
+        async function initializePage() {
+            // Load theme script immediately
+            lucide.createIcons();
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            let theme = localStorage.getItem('theme') || 'light';
+            
+            function applyTheme() {
+                document.documentElement.setAttribute('data-theme', theme);
+                const iconName = theme === 'light' ? 'moon' : 'sun';
+                if (themeToggleBtn) {
+                    themeToggleBtn.innerHTML = '<i data-lucide="' + iconName + '"></i>';
+                }
+                lucide.createIcons();
+            }
+
+            function toggleTheme() {
+                theme = theme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+                applyTheme();
+            }
+
+            applyTheme();
+            themeToggleBtn?.addEventListener('click', toggleTheme);
+
+            // Check authentication status to handle script loading
+            const isAuthenticated = await Auth.checkAuth();
+            
+            // Load editor scripts (we load it for everyone, but gated in app.js)
+            const script = document.createElement('script');
+            script.src = "{% static 'app.js' %}";
+            document.body.appendChild(script);
+        }
+
+        async function logoutUser() {
+            const result = await Auth.logout();
+            if (result.success) {
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize page on load
+        initializePage();
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Photo Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="app-container login-container">
+        <header class="header">
+            <div class="logo">
+                <i data-lucide="camera" class="logo-icon"></i><h1>Photo Maker</h1>
+            </div>
+            <a href="/" class="home-link">Home</a>
+            <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode"><i data-lucide="moon" id="theme-icon"></i></button>
+        </header>
+
+        <main class="content-area login-content">
+            <div id="signup-view" class="block">
+                <div class="header-text">
+                    <h2>Create an Account</h2>
+                    <p>Join Photo Maker today</p>
+                </div>
+
+                <form id="signup-form" class="auth-form" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="input-group"><label for="signup-username">Username</label><div class="input-wrapper"><i data-lucide="user" class="input-icon"></i><input type="text" id="signup-username" placeholder="username" required></div></div>
+                    <div class="input-group"><label for="signup-email">Email</label><div class="input-wrapper"><i data-lucide="mail" class="input-icon"></i><input type="email" id="signup-email" placeholder="you@example.com" required></div></div>
+                    <div class="input-group"><label for="signup-password">Password</label><div class="input-wrapper"><i data-lucide="lock" class="input-icon"></i><input type="password" id="signup-password" placeholder="••••••••" required></div></div>
+                    <div class="input-group"><label for="signup-confirm-password">Confirm Password</label><div class="input-wrapper"><i data-lucide="lock" class="input-icon"></i><input type="password" id="signup-confirm-password" placeholder="••••••••" required></div></div>
+
+                    <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Create Account</button>
+                </form>
+                <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="{% static 'login.js' %}"></script>
+</body>
+</html>

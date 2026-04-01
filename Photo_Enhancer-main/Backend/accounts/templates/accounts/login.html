@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Photo Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="app-container login-container">
+        <header class="header">
+            <div class="logo">
+                <i data-lucide="camera" class="logo-icon"></i>
+                <h1>Photo Maker</h1>
+            </div>
+            <a href="/" class="home-link">Home</a>
+            <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode">
+                <i data-lucide="moon" id="theme-icon"></i>
+            </button>
+        </header>
+
+        <main class="content-area login-content">
+            <div id="signin-view">
+                <div class="header-text">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to your account</p>
+                </div>
+
+                <form id="login-form" class="auth-form" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label for="signin-email">Email</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="mail" class="input-icon"></i>
+                            <input type="email" id="signin-email" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="signin-password">Password</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon"></i>
+                            <input type="password" id="signin-password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <label class="checkbox-label">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Sign In</button>
+                </form>
+                <p class="auth-switch">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+            </div>
+
+            <div id="signup-view" class="hidden">
+                <div class="header-text">
+                    <h2>Create an Account</h2>
+                    <p>Join Photo Maker today</p>
+                </div>
+                <div class="profile-upload-section">
+                    <div class="profile-pic-wrapper" id="profile-pic-trigger">
+                        <img src="" alt="Profile" id="profile-preview" class="profile-img" style="opacity: 0">
+                        <div class="profile-pic-overlay" id="profile-pic-overlay" style="opacity: 1; background: transparent;">
+                            <i data-lucide="camera" style="color: var(--text-muted); width: 32px; height: 32px;"></i>
+                        </div>
+                    </div>
+                    <p class="upload-hint" style="margin-bottom: 0;">Add a profile photo (Optional)</p>
+                    <input type="file" id="profile-upload" accept="image/*" hidden>
+                </div>
+                <form id="signup-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="signup-name">Full Name</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input type="text" id="signup-name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-email">Email</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="mail" class="input-icon"></i>
+                            <input type="email" id="signup-email" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="signup-password">Password</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon"></i>
+                            <input type="password" id="signup-password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Create Account</button>
+                </form>
+                <p class="auth-switch">Already have an account? <a href="#" id="show-signin">Sign in</a></p>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="crop-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crop Profile Photo</h3>
+                <button id="close-modal" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container profile-crop-container">
+                    <img id="image-to-crop" src="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-cancel-crop" class="btn btn-outline">Cancel</button>
+                <button id="btn-save-crop" class="btn btn-primary">Save Photo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="{% static 'auth.js' %}"></script>
+    <script src="{% static 'login.js' %}"></script>
+</body>
+</html>
