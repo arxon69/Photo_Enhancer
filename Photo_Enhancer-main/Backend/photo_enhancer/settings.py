@@ -395,6 +395,23 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
 DATA_UPLOAD_MAX_NUMBER_FILES = 100
 
 # =============================================================================
+# AI ENHANCER API CONFIGURATION
+# Add your API keys here or in environment variables
+# =============================================================================
+
+# Remove.bg API - https://www.remove.bg/
+# Get your API key from: https://www.remove.bg/api
+REMOVE_BG_API_KEY = env('Ln8Z9Dr387Z4tGTSF1jFYkpL', default='')  # <-- ADD YOUR KEY HERE
+
+# Deep-image.ai API - https://deep-image.ai/
+# Get your API key from: https://deep-image.ai/my-account/api-keys
+DEEP_IMAGE_API_KEY = env('DEEP_IMAGE_API_KEY', default='')  # <-- ADD YOUR KEY HERE
+
+# Deep-image.ai has free tier with 50 credits/month
+# Remove.bg has free tier with 50 credits (1 credit = 1 image)
+
+
+# =============================================================================
 # HEALTH CHECK
 # =============================================================================
 

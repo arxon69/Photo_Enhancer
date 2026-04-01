@@ -26,6 +26,7 @@ import os
 
 from .models import UserProfile, Photo, UserSubscription
 from .tasks import process_photo
+from .ai_services import RemoveBgService, DeepImageService, AIEnhancerConfig
 
 logger = logging.getLogger('accounts')
 
@@ -519,6 +520,96 @@ def admin_stats(request):
             'free': UserSubscription.objects.filter(tier='free').count(),
             'pro': UserSubscription.objects.filter(tier='pro').count(),
             'enterprise': UserSubscription.objects.filter(tier='enterprise').count()
-        }
+        },
+        'ai_services': AIEnhancerConfig.get_available_services()
     }
     return Response(stats)
+
+
+# =============================================================================
+# AI ENHANCER API
+# =============================================================================
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ai_service_status(request):
+    """Get AI service configuration status"""
+    services = AIEnhancerConfig.get_available_services()
+    issues = AIEnhancerConfig.validate_config()
+    
+    return Response({
+        'services': services,
+        'configured': all(services.values()),
+        'issues': issues if issues else None,
+        'message': 'Add API keys to settings to enable AI features' if issues else 'All services ready'
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def enhancement_options(request):
+    """Get available enhancement options based on user's subscription"""
+    
+    # Get user's tier
+    tier = 'free'
+    if hasattr(request.user, 'subscription'):
+        tier = request.user.subscription.tier
+    
+    # Base options available to all
+    options = {
+        'enhancement_types': [
+            {
+                'key': 'enhance',
+                'name': 'AI Enhancement',
+                'description': 'Enhance photo quality with AI (Deep-image.ai)',
+                'requires': 'deep_image',
+                'icon': 'sparkles'
+            },
+            {
+                'key': 'remove_bg',
+                'name': 'Remove Background',
+                'description': 'Remove or replace background (Remove.bg)',
+                'requires': 'remove_bg',
+                'icon': 'image-off'
+            },
+            {
+                'key': 'both',
+                'name': 'Remove BG + Enhance',
+                'description': 'Remove background then enhance quality',
+                'requires': 'both',
+                'icon': 'wand-2'
+            }
+        ],
+        'presets': DeepImageService.get_available_presets(),
+        'tier': tier,
+        'max_resolution': UserSubscription.TIER_LIMITS[tier]['max_resolution']
+    }
+    
+    # Filter by available services
+    services = AIEnhancerConfig.get_available_services()
+    
+    filtered_types = []
+    for etype in options['enhancement_types']:
+        if etype['requires'] == 'deep_image' and services['deep_image']:
+            filtered_types.append(etype)
+        elif etype['requires'] == 'remove_bg' and services['remove_bg']:
+            filtered_types.append(etype)
+        elif etype['requires'] == 'both' and services['deep_image'] and services['remove_bg']:
+            filtered_types.append(etype)
+        elif etype['requires'] == 'fallback':
+            filtered_types.append(etype)
+    
+    # If no AI services, add fallback
+    if not filtered_types:
+        filtered_types.append({
+            'key': 'enhance',
+            'name': 'Basic Enhancement',
+            'description': 'Basic enhancement with PIL (no AI)',
+            'requires': 'fallback',
+            'icon': 'sparkles'
+        })
+    
+    options['enhancement_types'] = filtered_types
+    options['services_available'] = services
+    
+    return Response(options)

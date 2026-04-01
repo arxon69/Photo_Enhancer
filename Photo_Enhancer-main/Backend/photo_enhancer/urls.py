@@ -26,6 +26,10 @@ urlpatterns = [
     path('api/photos/<uuid:photo_uuid>/', views.PhotoDetailAPI.as_view(), name='api_photo_detail'),
     path('api/photos/<uuid:photo_uuid>/download/', views.PhotoDownloadAPI.as_view(), name='api_photo_download'),
     
+    # AI Enhancer APIs
+    path('api/ai-services/status/', views.ai_service_status, name='api_ai_service_status'),
+    path('api/ai-services/options/', views.enhancement_options, name='api_enhancement_options'),
+    
     # Subscription API
     path('api/subscription/', views.SubscriptionAPI.as_view(), name='api_subscription'),
     
