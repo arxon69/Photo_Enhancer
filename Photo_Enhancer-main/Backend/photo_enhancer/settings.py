@@ -405,7 +405,7 @@ REMOVE_BG_API_KEY = env('Ln8Z9Dr387Z4tGTSF1jFYkpL', default='')  # <-- ADD YOUR 
 
 # Deep-image.ai API - https://deep-image.ai/
 # Get your API key from: https://deep-image.ai/my-account/api-keys
-DEEP_IMAGE_API_KEY = env('DEEP_IMAGE_API_KEY', default='')  # <-- ADD YOUR KEY HERE
+DEEP_IMAGE_API_KEY = env('63885df0-2670-11f1-8087-b9af19dc1257', default='')  # <-- ADD YOUR KEY HERE
 
 # Deep-image.ai has free tier with 50 credits/month
 # Remove.bg has free tier with 50 credits (1 credit = 1 image)

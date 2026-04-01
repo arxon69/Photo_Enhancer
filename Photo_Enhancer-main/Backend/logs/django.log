@@ -190,3 +190,10 @@ WARNING 2026-04-01 14:29:15,415 base 20232 2704 Session data corrupted
 WARNING 2026-04-01 15:37:57,762 base 20232 4212 Session data corrupted
 WARNING 2026-04-01 15:38:06,295 base 20232 9160 Session data corrupted
 INFO 2026-04-01 15:38:07,781 views 20232 9160 User logged in: konainworsi@gmail.com
+INFO 2026-04-01 15:47:29,242 autoreload 26600 23056 Watching for file changes with StatReloader
+INFO 2026-04-01 15:47:37,245 autoreload 8356 2924 Watching for file changes with StatReloader
+WARNING 2026-04-01 15:47:44,344 log 8356 26128 Forbidden (CSRF token from POST incorrect.): /admin/login/
+WARNING 2026-04-01 15:47:46,743 log 8356 26128 Forbidden (CSRF token from POST incorrect.): /admin/login/
+INFO 2026-04-01 15:47:54,551 autoreload 8356 2924 D:\Photo_Enhancer-main\Photo_Enhancer-main\Backend\accounts\apps.py changed, reloading.
+INFO 2026-04-01 15:47:55,787 autoreload 23288 5620 Watching for file changes with StatReloader
+INFO 2026-04-01 15:53:14,921 autoreload 24468 23716 Watching for file changes with StatReloader
